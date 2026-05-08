@@ -9,17 +9,26 @@ const PORT = process.env.PORT || 5000
 
 // ---- DB mongo connect
 //-----------------------------------
-// mongoose.connect("mongodb://localhost:27017/dataservice_db")
-//         .then( () => {
-//             console.log(" MongoDB: Forbundet 👍")
-//         })
-//         .catch(( error ) => {
-//             console.log(" MongoDB: FEJL:", error )
-//         })
+mongoose.connect("mongodb://localhost:27017/dataservice_db")
+        .then( () => {
+            console.log(" MongoDB: Forbundet 👍")
+        })
+        .catch(( error ) => {
+            console.log(" MongoDB: FEJL:", error )
+        })
 
-//     const db = mongoose.connection 
-//     db.on("error", (error) => {console.log("🔴MongoDB runtime fejl : ", error)})
-//     db.once("open", () => {console.log("🟢MongoDB connection åben")})
+    const db = mongoose.connection 
+    db.on("error", (error) => {console.log("🔴MongoDB runtime fejl : ", error)})
+    db.once("open", () => {console.log("🟢MongoDB connection åben")})
+
+
+
+// APP
+//-----------------------------------
+app.use(express.json())                         //Modtag body i jsonformat - fx POST og PUT
+app.use(express.urlencoded({extended: true}))   //Modtag body i urlencoded - fx POST og PUT
+// formdata - ligger i de enklte routs for at undgå konflikt med Multer
+
 
 
 

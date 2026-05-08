@@ -1,5 +1,11 @@
 const express = require("express")
 const router = express.Router()
+// model
+const Todo = require("../models/todo.model")
+
+// Håndter POST/PUT data som Multipart Formdata
+const formData = require("express-form-data")
+router.use(formData.parse())
 
 //---- Hent alle/Get todoes ----------------------------------------------
 //-------------------------------------------------------------------
@@ -9,7 +15,9 @@ router.get("/", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "Vis alle todoes"} )   
+        let todos = await Todo.find()
+
+        res.status( 200 ).json( { todos: todos } )   
 
     } catch (error) {
 
@@ -28,7 +36,9 @@ router.get("/:id", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "Vis udvalgt todoes - ID : " + req.params.id } )   
+        let todo = await Todo.findById(req.params.id)
+
+        res.status( 200 ).json( { todo: todo } )   
 
     } catch (error) {
 
@@ -47,7 +57,12 @@ router.post("/", async(req, res) => {
 
     try {
 
-        res.status( 201 ).json( { message: "Ny todo er oprettet" } )   
+        let todo = new Todo(req.body)
+        await todo.save()
+
+        res.status( 201 ).json( { 
+            message: "Ny todo er oprettet", 
+            todo: todo } )   
 
     } catch (error) {
 

@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
+
 //---- Hent alle/Get zzz ----------------------------------------------
 //-------------------------------------------------------------------
 router.get("/", async(req, res) => {
