@@ -80,7 +80,16 @@ router.put("/:id", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "Todo er rettet - ID : " + req.params.id } )   
+        let todo = await Todo.findByIdAndUpdate( req.params.id, req.body, { new: true, runValidators: true } )
+
+        //hvis ID ikke findes - returner besked 
+        if ( todo == null ) {
+
+            return res.status( 404 ).json( { message: "Todo kunne ikke findes/ rettes", updated: null } )
+
+        }
+
+        res.status( 200 ).json( { message: "Todo er rettet:", updated: todo} )   
 
     } catch (error) {
 
@@ -98,7 +107,16 @@ router.delete("/:id", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "Todo er slettet - ID : " + req.params.id } )   
+        let todo = await Todo.findByIdAndDelete( req.params.id)
+
+        //hvis ID ikke findes - returner besked 
+        if ( todo == null ) {
+
+            return res.status( 404 ).json( { message: "Todo kunne ikke findes/ slettes", deleted: null } )
+
+        } 
+
+        res.status( 200 ).json( { message: "Todo er sletted:", deleted: todo} ) 
 
     } catch (error) {
 

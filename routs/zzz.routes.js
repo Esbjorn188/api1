@@ -1,6 +1,11 @@
 const express = require("express")
 const router = express.Router()
+// model
+const Zzz = require("../models/zzz.model")
 
+// Håndter POST/PUT data som Multipart Formdata
+const formData = require("express-form-data")
+router.use(formData.parse())
 
 //---- Hent alle/Get zzz ----------------------------------------------
 //-------------------------------------------------------------------
@@ -10,7 +15,9 @@ router.get("/", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "Vis alle zzz"} )   
+        let zzz = await Zzz.find()
+
+        res.status( 200 ).json( { zzz: zzz } )   
 
     } catch (error) {
 
@@ -29,7 +36,9 @@ router.get("/:id", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "Vis udvalgt zzz - ID : " + req.params.id } )   
+        let zzz = await Zzz.findById(req.params.id)
+
+        res.status( 200 ).json( { zzz: zzz } )   
 
     } catch (error) {
 
@@ -41,14 +50,19 @@ router.get("/:id", async(req, res) => {
 
 
 //---- Opret/Post zzz ----------------------------------------------
-//-------------------------------------------------------------------
+//---------------------------------------------------------------------
 router.post("/", async(req, res) => {
 
     console.log("Post - opret ny zzz")
 
     try {
 
-        res.status( 201 ).json( { message: "Ny zzz er oprettet" } )   
+        let zzz = new Zzz(req.body)
+        await zzz.save()
+
+        res.status( 201 ).json( { 
+            message: "Ny zzz er oprettet", 
+            zzz: zzz } )   
 
     } catch (error) {
 
@@ -66,7 +80,16 @@ router.put("/:id", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "zzz er rettet - ID : " + req.params.id } )   
+        let zzz = await Zzz.findByIdAndUpdate( req.params.id, req.body, { new: true, runValidators: true } )
+
+        //hvis ID ikke findes - returner besked 
+        if ( zzz == null ) {
+
+            return res.status( 404 ).json( { message: "zzz kunne ikke findes/ rettes", updated: null } )
+
+        }
+
+        res.status( 200 ).json( { message: "Zzz er rettet:", updated: zzz} )   
 
     } catch (error) {
 
@@ -84,7 +107,16 @@ router.delete("/:id", async(req, res) => {
 
     try {
 
-        res.status( 200 ).json( { message: "zzz er slettet - ID : " + req.params.id } )   
+        let zzz = await Zzz.findByIdAndDelete( req.params.id)
+
+        //hvis ID ikke findes - returner besked 
+        if ( zzz == null ) {
+
+            return res.status( 404 ).json( { message: "Zzz kunne ikke findes/ slettes", deleted: null } )
+
+        } 
+
+        res.status( 200 ).json( { message: "Zzz er sletted:", deleted: zzz} ) 
 
     } catch (error) {
 
