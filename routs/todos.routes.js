@@ -1,11 +1,40 @@
 const express = require("express")
 const router = express.Router()
+
 // model
 const Todo = require("../models/todo.model")
 
 // Håndter POST/PUT data som Multipart Formdata
-const formData = require("express-form-data")
-router.use(formData.parse())
+// const formData = require("express-form-data")
+// router.use(formData.parse())
+
+const multer = require( "multer" )
+const upload = multer ( {
+
+    storage: multer.diskStorage( {
+        destination: function ( req, file, cb ) { 
+            cb( null, "public/img")
+         },
+
+        filename: function ( req, file, cb ) { 
+            // cb( null, file.originalname )
+            cb( null, Date.now() + "_" + file.originalname )
+         }
+    } ),
+
+    fileFilter: function ( req, file, cb ) { 
+
+        if (file.mimetype.startsWith("image/") ) {
+            
+            cb( null, true )
+            
+        } else {
+            cb( new Error( "Kun billedfiler er tilladt - jpg, gif osv." ), false )
+        }
+
+    }
+
+} )
 
 //---- Hent alle/Get todoes ----------------------------------------------
 //-------------------------------------------------------------------
@@ -51,13 +80,16 @@ router.get("/:id", async(req, res) => {
 
 //---- Opret/Post todoes ----------------------------------------------
 //---------------------------------------------------------------------
-router.post("/", async(req, res) => {
+router.post("/", upload.single("img"), async(req, res) => {
 
     console.log("Post - opret ny todos")
 
     try {
 
         let todo = new Todo(req.body)
+
+        todo.img = req.file ? req.file.filename : null // imagenavn
+
         await todo.save()
 
         res.status( 201 ).json( { 
@@ -74,9 +106,41 @@ router.post("/", async(req, res) => {
 
 //---- Ret/Put todoes ----------------------------------------------
 //-------------------------------------------------------------------
-router.put("/:id", async(req, res) => {
+router.put("/:id", upload.single("img"), async(req, res) => {
 
     console.log("Put - ret todo")
+
+    try {
+
+        // Hvis der er sendt en fil/img med - så gem filnavnet i requestet inden update
+        if (req.file ) {
+            req.body.img = req.file.filename
+        }
+
+        let todo = await Todo.findByIdAndUpdate( req.params.id, req.body, { new: true, runValidators: true } )
+
+        //hvis ID ikke findes - returner besked 
+        if ( todo == null ) {
+
+            return res.status( 404 ).json( { message: "Todo kunne ikke findes/ rettes", updated: null } )
+
+        }
+
+        res.status( 200 ).json( { message: "Todo er rettet:", updated: todo} )   
+
+    } catch (error) {
+
+        console.log( error.message )
+        res.status( 400 ).json( { message: "Der er opstået en fejl - undskyld 👻"} ) 
+    }
+} )
+
+
+//---- Ret/PATCH /todo - ret done true/false ----------------------------------------------
+//-------------------------------------------------------------------
+router.patch("/:id", upload.single("img"), async(req, res) => {
+
+    console.log("PATCH - ret todo")
 
     try {
 

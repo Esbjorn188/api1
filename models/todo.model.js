@@ -9,7 +9,11 @@ const todoSchema = new mongoose.Schema({
     },
     descripttion: {
         type: String,
-        minLength: [2, "Title - title - skal mindst 2 tegn"]
+        minLength: [2, "Beskrivelse - description - skal mindst 2 tegn"]
+    },
+    img: {
+        type: String,
+        require: [true, "Billede/foto - img - er påkrævet"]
     },
     done: {
         type: Boolean,

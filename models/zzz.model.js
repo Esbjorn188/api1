@@ -18,7 +18,9 @@ const zzzSchema = new mongoose.Schema({
     faction: {
         type: String,
         minLength: [2, "Title - title - skal mindst 2 tegn"]
-    }
+    },
+
+
 
 })
 

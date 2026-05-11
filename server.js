@@ -30,6 +30,10 @@ app.use(express.urlencoded({extended: true}))   //Modtag body i urlencoded - fx 
 // formdata - ligger i de enklte routs for at undgå konflikt med Multer
 
 
+// ---- til statiske filer fx img 
+// ------------------------------
+app.use( express.static( "public" ) ) // adgang udfra - requests
+
 
 
 // GET: Servers endpoint - base-URL
